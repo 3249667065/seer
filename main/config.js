@@ -1,5 +1,5 @@
 import { lib, game, ui, get, ai, _status } from "noname";
-import update from "../update.js";
+import update, { DEFAULT_REPO } from "../update.js";
 import { EXTENSION_VERSION } from "../version.js";
 
 export const config = {
@@ -11,14 +11,10 @@ export const config = {
         },
     },
     update_repo: {
-        name: `<span style="color:#ff9800;text-decoration: underline">更新源地址`,
+        name: `<span style="color:#ff9800;text-decoration: underline">当前更新源`,
         clear: true,
         onclick: function () {
-            const old = lib.config.extension_赛尔计划_update_repo || "";
-            const value = prompt("请输入更新源根目录（留空则使用内置默认地址）\n例如：https://raw.githubusercontent.com/用户名/仓库/refs/heads/main", old);
-            if (value === null) return;
-            game.saveConfig("extension_赛尔计划_update_repo", value.trim());
-            alert(value.trim() ? "已保存更新源：" + value.trim() : "已清空，将使用内置默认地址");
+            alert("当前更新源：\n" + (lib.config.extension_赛尔计划_update_repo || DEFAULT_REPO) + "\n\n如需更换，请修改扩展目录下 update.js 的 DEFAULT_REPO。");
         },
     },
     update_source: {
