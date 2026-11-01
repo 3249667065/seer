@@ -5076,20 +5076,56 @@ const skills = {
                     player: "gainAfter",
                 },
                 round: 1,
-                filter: function (event, player) {
-                    return _status.currentPhase != player && player.countCards('h') - player.getShownCards().length >= 2;
+                // 怀信持有者（可能不止一个）
+                getOwners(player) {
+                    const map = (lib.skill.globalmap && lib.skill.globalmap["seer_huaixin_zhen"]) || [];
+                    const list = map.length ? map.slice() : game.filterPlayer(current => current.hasSkill("seer_huaixin"));
+                    return list.filter(owner => owner.isIn() && owner != player);
                 },
-                content: function (event, player) {
-                    "step 0"
-                    player.chooseCard("he", "明置两张手牌", 2, true).set('filterCard', function (card) {
-                        return !get.is.shownCard(card);
-                    });
-
-                    "step 1"
-                    if (result.bool) {
-                        player.addShownCards(result.cards, 'visible_seer');
+                filter(event, player) {
+                    // 于回合外获得牌
+                    if (_status.currentPhase == player) {
+                        return false;
                     }
-                    player.recover();
+                    // 手动记录的本轮次数（全局技不会走引擎的 round 计数，这里兜底）
+                    if (player.storage.seer_huaixin_round == game.roundNumber) {
+                        return false;
+                    }
+                    // 获得者自己要有两张未明置的手牌
+                    if (player.countCards("h") - player.getShownCards().length < 2) {
+                        return false;
+                    }
+                    return lib.skill.seer_huaixin_zhen.getOwners(player).length > 0;
+                },
+                async content(event, trigger, player) {
+                    const owners = lib.skill.seer_huaixin_zhen.getOwners(player);
+                    if (!owners.length) {
+                        return;
+                    }
+                    const owner = owners[0];
+                    // 由获得牌的角色选择是否发动
+                    const result = await player
+                        .chooseBool(`怀信：是否令${get.translation(owner)}明置你的两张手牌，然后你回复1点体力？`)
+                        .set("ai", () => (player.hp < player.maxHp ? 1 : 0))
+                        .forResult();
+                    if (!result?.bool) {
+                        return;
+                    }
+                    // 本轮已发动
+                    player.storage.seer_huaixin_round = game.roundNumber;
+                    // 由怀信持有者从获得者的手牌里选两张明置
+                    const cards = player.getCards("h").filter(card => !get.is.shownCard(card));
+                    if (cards.length >= 2) {
+                        const choice = await owner
+                            .choosePlayerCard(player, "h", 2, true, `明置${get.translation(player)}的两张手牌`)
+                            .set("filterButton", button => !get.is.shownCard(button.link))
+                            .forResult();
+                        if (choice?.bool && choice.cards?.length) {
+                            player.addShownCards(choice.cards, "visible_seer");
+                            game.log(owner, "明置了", player, "的", choice.cards);
+                        }
+                    }
+                    await player.recover();
                 },
                 sub: true,
                 sourceSkill: "seer_huaixin",
@@ -5173,21 +5209,34 @@ const skills = {
         filterTarget: function (card, player, target) {
             return !player.storage.seer_suoxin_target.includes(target) && player != target;
         },
-        content: function () {
-            "step 0"
+        async content(event, trigger, player) {
+            const target = event.target;
             player.storage.seer_suoxin_target.push(target);
-            target.chooseCard("he", "明置两张手牌", 2, false).set('filterCard', function (card) {
-                return !get.is.shownCard(card);
-            });
-
-            "step 1"
-            if (result.bool) {
-                target.addShownCards(result.cards, 'visible_seer');
-            } else {
-                target.damage();
-                player.gainPlayerCard(true, target, 'he');
-                player.storage.seer_suoxin = false;
+            const cards = target.getCards("h").filter(card => !get.is.shownCard(card));
+            // 0 = 明置两张手牌；1 = 造成伤害并获得一张牌
+            let choice = 1;
+            if (cards.length >= 2) {
+                const result = await target
+                    .chooseControl("明置两张手牌", "受到伤害并被获得一张牌")
+                    .set("prompt", "索信：请选择一项")
+                    .set("ai", () => 0)
+                    .forResult();
+                choice = result.index;
             }
+            if (choice === 0) {
+                const result = await player
+                    .choosePlayerCard(target, "h", 2, true, "明置其两张手牌")
+                    .set("filterButton", button => !get.is.shownCard(button.link))
+                    .forResult();
+                if (result?.bool && result.cards?.length) {
+                    target.addShownCards(result.cards, "visible_seer");
+                    game.log(player, "明置了", target, "的", result.cards);
+                    return;
+                }
+            }
+            await target.damage();
+            await player.gainPlayerCard(target, "he", true);
+            player.storage.seer_suoxin = false;
         },
         group: ["seer_suoxin_reset"],
         subSkill: {
