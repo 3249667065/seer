@@ -1,0 +1,131 @@
+.ark_wuzhuang {
+    color: rgb(245, 124, 25);
+}
+
+.ark_dibeijing {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 999;
+}
+
+
+.ark_player {
+
+    box-shadow: none !important;
+    background-image: none !important;
+    border-radius: 0px !important;
+}
+
+.ark_avatar {
+
+    box-shadow: none !important;
+}
+
+.arkout {
+    opacity: 0;
+    transition: 1s;
+}
+.arkshow {
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+.arkskillshow {
+    text-align: center;
+
+    padding-top: 0.5%;
+    left: 40%;
+    top: 10%;
+    width: 20%;
+    height: 3.5%;
+
+    z-index: 999;
+    background: linear-gradient(90deg,
+            rgba(0, 0, 0, 0),
+            rgba(0, 0, 0, 1),
+            rgba(12, 12, 12, 1),
+            rgba(0, 0, 0, 0))
+}
+
+.arkskillziti {
+    color: rgb(255, 255, 255);
+    position: absolute;
+    top: -10%;
+    left: 5%;
+    display: flex;
+
+}
+
+.azar_info {
+    position: absolute;
+    top: 10%;
+    left: 80%;
+    width: 12%;
+    height: 5%;
+    background-color: rgba(44, 41, 36, 0.85);
+    z-index: 1
+}
+
+.ark_skilltip {
+    width: 20%;
+    min-height: 5%;
+    left: 50%;
+    top: 50%;
+    font-size: 16px;
+    color: #ccad76;
+    font-family: \'shousha\';
+    background-color: rgba(36, 29, 19, 0.85);
+    border: #523a24 3px solid;
+    border-radius: 10px;
+    position: absolute;
+    display: block;
+    padding: 8px;
+    transform: translate(-50%, -50%);
+    transition: none;
+}
+
+.ssjx {
+    width: 120px;
+}
+
+.azar {
+    position: absolute;
+    width: 100%;
+    height: 10%;
+    z-index: 999;
+
+}
+
+.ark_djs {
+    position: absolute;
+    top: 10%;
+    left: 80%;
+    width: 20%;
+    height: 60%;
+    z-index: 0
+}
+
+.azar_ziti {
+    color: rgb(255, 255, 255);
+    position: absolute;
+    top: -10%;
+    left: 5%;
+}
+
+.azar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    z-index: -1;
+    padding: 0%;
+    background: linear-gradient(90deg,
+            rgba(0, 0, 0, 1),
+            rgba(0, 0, 0, 1),
+            rgba(0, 0, 0, 0.75),
+            rgba(0, 0, 0, 0))
+}

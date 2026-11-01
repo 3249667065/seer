@@ -1,0 +1,18 @@
+const characterSort = {
+
+    SEER_feiyou: ['seer_nanshuang', 'seer_donghui', 'seer_xiye', 'seer_beiniao'],
+    SEER_jinglingwang: ['seer_aensi', 'seer_canglan', 'seer_gaiya'],
+    SEER_hjdwx: ['seer_meheweite', 'seer_wuming'],
+    SEER_qt: ['seer_guimianyoudie', 'seer_zhujiecangxing', 'seer_diduo', 'seer_younasi', 'seer_suojiedeer', 'seer_wujishengwu', 'seer_liumeng'],
+    SEER_kc: ['seer_shacao', 'seer_sanhua', 'seer_ailiya']
+};
+
+const characterSortTranslate = {
+    SEER_feiyou: '费尤领主',
+    SEER_jinglingwang: '精灵王',
+    SEER_hjdwx: '黄金的万象',
+    SEER_qt: '其他精灵',
+    SEER_kc: '客串'
+};
+
+export { characterSort, characterSortTranslate };
