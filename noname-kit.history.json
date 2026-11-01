@@ -1,0 +1,325 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "task-1793240936854",
+      "taskId": "赛尔计划-01",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [
+        "触发技写 usable: 1 即为每回合限一次：引擎在 lib.filter.filterTrigger 用 player.getStat('triggerSkill')[skill] 拦截，发动成功后由 createTrigger 计数 +1，且该统计随每个回合（phase 事件开头）重置——即『每回合』包含他人回合。"
+      ],
+      "rounds": 1,
+      "at": 1793240936854,
+      "updatedAt": 1793240936854
+    },
+    {
+      "id": "task-1793240940803",
+      "taskId": "ID2",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [],
+      "rounds": 1,
+      "at": 1793240940803,
+      "updatedAt": 1793240940803
+    },
+    {
+      "id": "task-1793253469693",
+      "taskId": "赛尔计划-03",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/2)",
+      "notes": [
+        "subSkill 里的子技能引擎只会注册为 `<父ID>_<子名>`（game/index.js:8251-8272，带 sub/sourceSkill 标记），**不会自动挂到角色身上**；要让触发器生效，需在父技能写 group: \"<父ID>_<子名>\"（addSkillTrigger 里 game.expandSkills 会展开 group）。",
+        "chooseBool 的 prompt2 居中与否取决于引擎 content.js:7631 的 `prompt2.length <= 20`（dialog.js:328 addText(str, center)）；该长度算的是**含 HTML 的原始串**，所以 prompt2 里嵌 get.poptip()/标签会让长度超 20 而变左对齐。想让提示居中，prompt2 用纯文本且控制在 20 字以内。"
+      ],
+      "rounds": 1,
+      "at": 1793253469693,
+      "updatedAt": 1793253469693
+    },
+    {
+      "id": "task-1793253473111",
+      "taskId": "赛尔计划-06",
+      "folder": "赛尔计划",
+      "kind": "card",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [
+        "get.type 对延时锦囊返回 \"delay\"（如 standard.js 里 lebu 写的是 type: \"delay\"），所以用 [\"basic\", \"trick\"].includes(get.type(name)) 就能天然排除延时锦囊、只留基本牌与普通锦囊。",
+        "lib.inpile 是当前牌堆的牌名数组（game/index.js 里由 state.inpile 赋值），技能 viewAs 用的 get.inpileVCardList 也遍历它，所以“可加入牌名”的随机池从 lib.inpile 取能与使用列表保持一致。"
+      ],
+      "rounds": 1,
+      "at": 1793253473111,
+      "updatedAt": 1793253473111
+    },
+    {
+      "id": "task-1793253477477",
+      "taskId": "赛尔计划-04",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [
+        "技能在触发器结算过程中被 addSkill 时，addSkillTrigger 会调用 _status.event.addTrigger，把新技能追加进正在进行的 arrangeTrigger 的 todoList（content.js:3428 的 doingList 虽是 slice，但元素对象共享），于是新技能会对「当时正在结算的那张牌」多触发一次：装备牌在 useCard 结算途中被装备时，其 useCardAfter 触发器会被补登记到前面那张牌上，导致多记一次。规避方式是在会装备牌的那张牌的 useCard 事件上打标记，让新触发器在 filter 里跳过。",
+        "技能在触发器结算过程中被 addSkill 时，addSkillTrigger 会调用 _status.event.addTrigger，把新技能追加进正在进行的 arrangeTrigger 的 todoList（content.js:3428 的 doingList 虽然是 slice，但元素对象共享），于是新技能会对「当时正在结算的那张牌」多触发一次：装备牌在自己的 useCard 结算途中被装备时，它的 useCardAfter 触发器会被补登记到前面那张牌上，导致同一次发动多记一次。规避方式是在会装备牌的那张牌的 useCard 事件上打标记，让新触发器在 filter 里跳过。"
+      ],
+      "rounds": 1,
+      "at": 1793253477477,
+      "updatedAt": 1793263158439
+    },
+    {
+      "id": "task-1793254287908",
+      "taskId": "赛尔计划-07",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [
+        "“此牌无法响应”在引擎里要同时做两件事：trigger.directHit.addArray(...) 挡【闪】等响应，且 trigger.nowuxie = true 挡【无懈可击】——_wuxie 的 filter 会检查 event.card.storage.nowuxie 与 event.getParent().nowuxie（card/standard.js:3957-3970），核心技能 dcwanglie（character/shenhua.js:503，trigger: player \"useCard\"）就是这套写法，可直接照抄。"
+      ],
+      "rounds": 1,
+      "at": 1793254287908,
+      "updatedAt": 1793254287908
+    },
+    {
+      "id": "task-1793263113087",
+      "taskId": "赛尔计划-10",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/2)",
+      "notes": [
+        "在 die 事件里 trigger.cancel() 可以取消这次死亡（配合 forceDie: true 的触发技），随后调用 player.revive(hp) 把角色拉回场上；判断“是否因伤害致死”用 trigger.getParent(\"damage\", true)——第二个参数为 true 时找不到会返回 undefined，所以 !event.getParent(\"damage\", true) 就是“非伤害致死”。",
+        "player.reinitCharacter / changeCharacter 只交换武将牌与技能，不会同步体力上限（引擎 content.changeCharacter 里没有 maxHp 处理）；替换武将后要按新武将的 hp 自己用 gainMaxHp/loseMaxHp 调整，否则上限仍是旧的。"
+      ],
+      "rounds": 1,
+      "at": 1793263113087,
+      "updatedAt": 1793263113087
+    },
+    {
+      "id": "task-1793263151526",
+      "taskId": "赛尔计划-09",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [],
+      "rounds": 1,
+      "at": 1793263151526,
+      "updatedAt": 1793263151526
+    },
+    {
+      "id": "task-1793263156364",
+      "taskId": "赛尔计划-08",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [],
+      "rounds": 1,
+      "at": 1793263156364,
+      "updatedAt": 1793263156364
+    },
+    {
+      "id": "task-1793504741407",
+      "taskId": "赛尔计划-16",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/3)",
+      "notes": [
+        "一个技能同时挂 global 与 player 两种触发时，不要在 content 里靠 event.triggername 分支判断时机（容易整段落到别的分支）；拆成「主技能 + 隐藏子技能各自单一触发」更稳，子技能用 group 挂载。",
+        "限定技不要写 `intro: false`：引擎 finishSkill 会执行 `info.intro.content ??= \"limited\"`，intro 为布尔 false 时在严格模式抛 TypeError（Cannot create property 'content' on boolean 'false'）导致扩展加载崩溃。要关特效就设 mark: false + skillAnimation: false。"
+      ],
+      "rounds": 1,
+      "at": 1793504741407,
+      "updatedAt": 1793504741407
+    },
+    {
+      "id": "task-1793504743477",
+      "taskId": "赛尔计划-15",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [
+        "统计「两次自己的回合之间」是否受伤的写法：技能同时挂 player: [\"phaseBegin\", \"damage\"]，damage 分支里用 `_status.currentPhase !== player` 过滤掉自己回合内的伤害并累加 storage，phaseBegin 分支读取后清零再判定。避免用历史/round 截断。"
+      ],
+      "rounds": 1,
+      "at": 1793504743477,
+      "updatedAt": 1793504743477
+    },
+    {
+      "id": "task-1793504744816",
+      "taskId": "赛尔计划-14",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/3)",
+      "notes": [
+        "移动判定区的牌给另一名角色：直接 `await target.addJudge({ name: card.viewAs }, [card])`，不能先 discard——牌进了弃牌堆就丢了 owner，addJudge 的搬运逻辑会落空（判定牌不会进目标判定区）。参考引擎写法 character/skill.js:31261、offline_scl.js:361。"
+      ],
+      "rounds": 1,
+      "at": 1793504744816,
+      "updatedAt": 1793504744816
+    },
+    {
+      "id": "task-1793504746259",
+      "taskId": "赛尔计划-13",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [],
+      "rounds": 1,
+      "at": 1793504746259,
+      "updatedAt": 1793504746259
+    },
+    {
+      "id": "task-1793504747521",
+      "taskId": "赛尔计划-12",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/2)",
+      "notes": [
+        "「无距离限制/无次数限制」的现成写法（参考核心技能 clangaojin，character/clan.js:3706）：给技能写 mod: { targetInRange: () => true, cardUsable: () => Infinity } 即可无视距离/次数限制；若只想让某张牌不计次，则在其 useCard 触发里设 trigger.addCount = false。"
+      ],
+      "rounds": 1,
+      "at": 1793504747521,
+      "updatedAt": 1793504747521
+    },
+    {
+      "id": "task-1793504749083",
+      "taskId": "赛尔计划-11",
+      "folder": "赛尔计划",
+      "kind": "character",
+      "summary": "手动标记完成(确认 0/1)",
+      "notes": [
+        "chooseControl 的 ai 回调返回 number 时按选项下标处理，返回字符串时按选项文本处理（content.js:7567-7578）；choosePlayerCard / discardPlayerCard 的结果里，牌在 result.links（discardPlayerCard 亦有 result.cards），可直接取来做后续弃置。"
+      ],
+      "rounds": 1,
+      "at": 1793504749083,
+      "updatedAt": 1793504749083
+    }
+  ],
+  "notes": [
+    "触发技写 usable: 1 即为每回合限一次：引擎在 lib.filter.filterTrigger 用 player.getStat('triggerSkill')[skill] 拦截，发动成功后由 createTrigger 计数 +1，且该统计随每个回合（phase 事件开头）重置——即『每回合』包含他人回合。",
+    "subSkill 里的子技能引擎只会注册为 `<父ID>_<子名>`（game/index.js:8251-8272，带 sub/sourceSkill 标记），**不会自动挂到角色身上**；要让触发器生效，需在父技能写 group: \"<父ID>_<子名>\"（addSkillTrigger 里 game.expandSkills 会展开 group）。",
+    "chooseBool 的 prompt2 居中与否取决于引擎 content.js:7631 的 `prompt2.length <= 20`（dialog.js:328 addText(str, center)）；该长度算的是**含 HTML 的原始串**，所以 prompt2 里嵌 get.poptip()/标签会让长度超 20 而变左对齐。想让提示居中，prompt2 用纯文本且控制在 20 字以内。",
+    "get.type 对延时锦囊返回 \"delay\"（如 standard.js 里 lebu 写的是 type: \"delay\"），所以用 [\"basic\", \"trick\"].includes(get.type(name)) 就能天然排除延时锦囊、只留基本牌与普通锦囊。",
+    "lib.inpile 是当前牌堆的牌名数组（game/index.js 里由 state.inpile 赋值），技能 viewAs 用的 get.inpileVCardList 也遍历它，所以“可加入牌名”的随机池从 lib.inpile 取能与使用列表保持一致。",
+    "“此牌无法响应”在引擎里要同时做两件事：trigger.directHit.addArray(...) 挡【闪】等响应，且 trigger.nowuxie = true 挡【无懈可击】——_wuxie 的 filter 会检查 event.card.storage.nowuxie 与 event.getParent().nowuxie（card/standard.js:3957-3970），核心技能 dcwanglie（character/shenhua.js:503，trigger: player \"useCard\"）就是这套写法，可直接照抄。",
+    "在 die 事件里 trigger.cancel() 可以取消这次死亡（配合 forceDie: true 的触发技），随后调用 player.revive(hp) 把角色拉回场上；判断“是否因伤害致死”用 trigger.getParent(\"damage\", true)——第二个参数为 true 时找不到会返回 undefined，所以 !event.getParent(\"damage\", true) 就是“非伤害致死”。",
+    "player.reinitCharacter / changeCharacter 只交换武将牌与技能，不会同步体力上限（引擎 content.changeCharacter 里没有 maxHp 处理）；替换武将后要按新武将的 hp 自己用 gainMaxHp/loseMaxHp 调整，否则上限仍是旧的。",
+    "技能在触发器结算过程中被 addSkill 时，addSkillTrigger 会调用 _status.event.addTrigger，把新技能追加进正在进行的 arrangeTrigger 的 todoList（content.js:3428 的 doingList 虽是 slice，但元素对象共享），于是新技能会对「当时正在结算的那张牌」多触发一次：装备牌在 useCard 结算途中被装备时，其 useCardAfter 触发器会被补登记到前面那张牌上，导致多记一次。规避方式是在会装备牌的那张牌的 useCard 事件上打标记，让新触发器在 filter 里跳过。",
+    "技能在触发器结算过程中被 addSkill 时，addSkillTrigger 会调用 _status.event.addTrigger，把新技能追加进正在进行的 arrangeTrigger 的 todoList（content.js:3428 的 doingList 虽然是 slice，但元素对象共享），于是新技能会对「当时正在结算的那张牌」多触发一次：装备牌在自己的 useCard 结算途中被装备时，它的 useCardAfter 触发器会被补登记到前面那张牌上，导致同一次发动多记一次。规避方式是在会装备牌的那张牌的 useCard 事件上打标记，让新触发器在 filter 里跳过。",
+    "一个技能同时挂 global 与 player 两种触发时，不要在 content 里靠 event.triggername 分支判断时机（容易整段落到别的分支）；拆成「主技能 + 隐藏子技能各自单一触发」更稳，子技能用 group 挂载。",
+    "限定技不要写 `intro: false`：引擎 finishSkill 会执行 `info.intro.content ??= \"limited\"`，intro 为布尔 false 时在严格模式抛 TypeError（Cannot create property 'content' on boolean 'false'）导致扩展加载崩溃。要关特效就设 mark: false + skillAnimation: false。",
+    "统计「两次自己的回合之间」是否受伤的写法：技能同时挂 player: [\"phaseBegin\", \"damage\"]，damage 分支里用 `_status.currentPhase !== player` 过滤掉自己回合内的伤害并累加 storage，phaseBegin 分支读取后清零再判定。避免用历史/round 截断。",
+    "移动判定区的牌给另一名角色：直接 `await target.addJudge({ name: card.viewAs }, [card])`，不能先 discard——牌进了弃牌堆就丢了 owner，addJudge 的搬运逻辑会落空（判定牌不会进目标判定区）。参考引擎写法 character/skill.js:31261、offline_scl.js:361。",
+    "「无距离限制/无次数限制」的现成写法（参考核心技能 clangaojin，character/clan.js:3706）：给技能写 mod: { targetInRange: () => true, cardUsable: () => Infinity } 即可无视距离/次数限制；若只想让某张牌不计次，则在其 useCard 触发里设 trigger.addCount = false。",
+    "chooseControl 的 ai 回调返回 number 时按选项下标处理，返回字符串时按选项文本处理（content.js:7567-7578）；choosePlayerCard / discardPlayerCard 的结果里，牌在 result.links（discardPlayerCard 亦有 result.cards），可直接取来做后续弃置。"
+  ],
+  "backups": [
+    {
+      "file": "extension/赛尔计划/更新暂存用文件夹/character/backup/character.20261029-091757-242004.js",
+      "at": 1793236677668
+    },
+    {
+      "file": "extension/赛尔计划/更新暂存用文件夹/card/backup/card.20261029-091904-391011.js",
+      "at": 1793236744860
+    },
+    {
+      "file": "extension/赛尔计划/更新暂存用文件夹/card/backup/skill.20261029-091904-405012.js",
+      "at": 1793236744865
+    },
+    {
+      "file": "extension/赛尔计划/更新暂存用文件夹/card/backup/translate.20261029-091904-412013.js",
+      "at": 1793236744869
+    },
+    {
+      "file": "extension/赛尔计划/更新暂存用文件夹/character/backup/character.20261029-091904-423014.js",
+      "at": 1793236744872
+    },
+    {
+      "file": "extension/赛尔计划/更新暂存用文件夹/character/backup/skill.20261029-091904-580015.js",
+      "at": 1793236744876
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/translate.20261029-093019-758022.js",
+      "at": 1793237419886
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/character.20261029-104718-958026.js",
+      "at": 1793242039074
+    },
+    {
+      "file": "extension/赛尔计划/card/backup/skill.20261029-135616-696032.js",
+      "at": 1793253376817
+    },
+    {
+      "file": "extension/赛尔计划/card/backup/translate.20261029-135627-757033.js",
+      "at": 1793253387866
+    },
+    {
+      "file": "extension/赛尔计划/card/backup/skill.20261029-151216-406037.js",
+      "at": 1793257936540
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/character.20261029-172632-180052.js",
+      "at": 1793265992336
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/translate.20261029-174910-914055.js",
+      "at": 1793267351047
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/sort.20261029-174914-698056.js",
+      "at": 1793267354820
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/skill.20261029-182116-381059.js",
+      "at": 1793269276543
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/skill.20261029-193550-211060.js",
+      "at": 1793273750360
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/skill.20261029-193952-841061.js",
+      "at": 1793273992894
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/sort.20261101-115658-259004.js",
+      "at": 1793505418380
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/skill.20261101-121121-083010.js",
+      "at": 1793506281217
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/skill.20261101-121632-200011.js",
+      "at": 1793506592312
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/translate.20261101-121637-490012.js",
+      "at": 1793506597605
+    },
+    {
+      "file": "extension/赛尔计划/character/backup/dynamicTranslate.20261101-121638-539013.js",
+      "at": 1793506598677
+    },
+    {
+      "file": "extension/赛尔计划/main/backup/config.20261101-125644-550014.js",
+      "at": 1793509004672
+    },
+    {
+      "file": "extension/赛尔计划/backup/update.20261101-125753-552016.js",
+      "at": 1793509073668
+    },
+    {
+      "file": "extension/赛尔计划/backup/genManifest.20261101-125754-541017.js",
+      "at": 1793509074664
+    },
+    {
+      "file": "extension/赛尔计划/main/backup/package.20261101-125808-099018.js",
+      "at": 1793509088222
+    },
+    {
+      "file": "extension/赛尔计划/main/backup/config.20261101-130814-534019.js",
+      "at": 1793509694655
+    }
+  ]
+}
