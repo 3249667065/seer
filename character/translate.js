@@ -207,7 +207,7 @@ const translates = {
     seer_changming: "长明",
     seer_changming_info: "每名角色的摸牌阶段开始时，你可以弃置你或其一张牌并卜算2；若你以此法弃置红色牌，其对你造成1点伤害。",
     seer_dianyou: "点幽",
-    seer_dianyou_info: "转换技，当你受到伤害后，你可以令伤害来源本回合：阴：攻击范围-1；阳：手牌上限-1。",
+    seer_dianyou_info: "转换技，当你受到伤害后，你可以令伤害来源本回合：阴：手牌上限-1；阳：攻击范围-1。",
 
     seer_meheweite: "梅赫维特",
     seer_huaixin: "怀信",

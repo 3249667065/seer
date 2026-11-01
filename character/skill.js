@@ -5005,8 +5005,8 @@ const skills = {
         zhuanhuanji: true,
         intro: {
             content(storage, player, skill) {
-                if (!storage) return "当你受到伤害后，你可以令伤害来源本回合手牌上限-1。";
-                return "当你受到伤害后，你可以令伤害来源本回合攻击范围-1。";
+                if (!storage) return "当你受到伤害后，你可以令伤害来源本回合攻击范围-1。";
+                return "当你受到伤害后，你可以令伤害来源本回合手牌上限-1。";
             },
         },
         filter(event, player) {
@@ -5018,11 +5018,11 @@ const skills = {
         async content(event, trigger, player) {
             await player.changeZhuanhuanji(event.name);
             if (player.storage[event.name]) {
-                trigger.source.addTempSkill("seer_dianyou_max");
-                trigger.source.addMark("seer_dianyou_max", 1, false);
-            } else {
                 trigger.source.addTempSkill("seer_dianyou_atk");
                 trigger.source.addMark("seer_dianyou_atk", 1, false);
+            } else {
+                trigger.source.addTempSkill("seer_dianyou_max");
+                trigger.source.addMark("seer_dianyou_max", 1, false);
             }
         },
         ai: {
