@@ -6,7 +6,7 @@ import { EXTENSION_VERSION } from "./version.js";
 const EXTNAME = "赛尔计划";
 // 内置默认仓库根目录（GitHub raw / Gitee raw / 任意静态托管根目录都可以）。
 // 也可以不写死：在扩展设置里点「更新源地址」填写后保存到 config，优先使用配置值。
-const DEFAULT_REPO = "";
+export const DEFAULT_REPO = "https://raw.githubusercontent.com/3249667065/seer/refs/heads/main";
 // 镜像源前缀，顺序与 main/config.js 的 update_source 选项一致
 const MIRRORS = ["", "https://gh-proxy.com/", "https://hk.gh-proxy.com/", "https://tvv.tw/"];
 // 只属于本地开发的文件：不参与更新、也不会被清理逻辑误删

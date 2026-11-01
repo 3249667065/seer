@@ -87,13 +87,13 @@
     "image/character/seer_zhujiecangxing.jpg": "ae44a1994365fb2fd7b9b3f7e1ab877493c87dba",
     "info.json": "e00e490b365667c85039c31629f64dc90afaf9f7",
     "LICENSE": "8624bcdae55baeef00cd11d5dfcfa60f68710a02",
-    "main/config.js": "8a328d2830d4ff07aec8c9dff682c1fba558d954",
+    "main/config.js": "697b3257550a06b2ee5d6a7fe7014084176aff6c",
     "main/content.js": "630b0fbac2e055230eecf9b181cf2a2575468bc2",
     "main/extension.css": "ab88bd025934bce33277a686d47471680c7298a8",
     "main/package.js": "f47dbd3b2a7a5d1ab0677e763907e79de94836f9",
     "main/precontent.js": "f0b6fddfda55149e2e455919b8051a4efbdedae1",
     "README.md": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
-    "update.js": "771f9e8ba082998e52c3d1d2465db68b6b973dcd",
+    "update.js": "6d77cfa3b69bc0b7dcf615c24f59570ff3c71797",
     "version.js": "90154d204526fa2d5a02fdfae6e9cd9f68eaaf41"
   }
 }
