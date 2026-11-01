@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "update": "",
   "files": {
     "audio/binah1.mp3": "ac5831965b8b958264f978c124510f16ba0100ea",
@@ -26,10 +26,10 @@
     "character/index.js": "c90b9e697e4d739fb19b2a8d3e2fb1205c4928bb",
     "character/intro.js": "4e446050135bb2abee32e23686b1e7a3ffef598f",
     "character/pinyin.js": "69fc7052c927810767753e00b55af92e6de9db42",
-    "character/skill.js": "684f6fdbdad02366c91b1c16aeb32607e054ec5f",
+    "character/skill.js": "fccd4995dabc0af96c21ff9d867a6e6d4f7d11c0",
     "character/skin.js": "5e4e6e97e283fda406fa418911778841ddc38c79",
     "character/sort.js": "0310d6080ed26445e3955ed1f8413549359a8e56",
-    "character/translate.js": "a0f974f6a2eb3607bd42384338bdb2611517ccc7",
+    "character/translate.js": "f256816fba9de7844c67f7dd576e7af67690d784",
     "character/voices.js": "b25b8a3b9d91a0b8f4930ddf982e5bfb6fb667a6",
     "extension.js": "29933bfaa5f489b595ed67b994089b50c79ac10b",
     "image/background/binah_dgs.gif": "751ac5b0f87664cd4bf6944309b13204b9a2fe11",
@@ -94,6 +94,6 @@
     "main/precontent.js": "f0b6fddfda55149e2e455919b8051a4efbdedae1",
     "README.md": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
     "update.js": "6d77cfa3b69bc0b7dcf615c24f59570ff3c71797",
-    "version.js": "90154d204526fa2d5a02fdfae6e9cd9f68eaaf41"
+    "version.js": "099eb4b5660cb68577c5a28024a9c2ec3d41709a"
   }
 }
