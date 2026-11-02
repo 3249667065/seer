@@ -101,6 +101,7 @@ async function performUpdate(isManual, localVersion) {
 	const entries = Object.entries(m.files);
 	const onlyCode = lib.config[`extension_${EXTNAME}_update_method`];
 	const updateFiles = [];
+	const debugSamples = {};
 	for (let i = 0; i < entries.length; i += 5) {
 		const batch = entries.slice(i, i + 5);
 		await Promise.all(
@@ -114,6 +115,9 @@ async function performUpdate(isManual, localVersion) {
 				try {
 					const buf = await crypto.subtle.digest("SHA-1", await game.promises.readFile(path));
 					const localHash = Array.from(new Uint8Array(buf), (x) => hex[x]).join("");
+					if (["character/skill.js", "character/translate.js", "version.js"].includes(f)) {
+						debugSamples[f] = `${localHash.slice(0, 8)} vs ${h.slice(0, 8)}`;
+					}
 					if (localHash !== h) updateFiles.push(f);
 				} catch {
 					updateFiles.push(f);
@@ -124,7 +128,14 @@ async function performUpdate(isManual, localVersion) {
 
 	sessionStorage.seer_check = true;
 	if (updateFiles.length === 0) {
-		if (isManual) alert("已经是最新版本，无需更新");
+		if (isManual) {
+			const samples = Object.entries(debugSamples)
+				.map(([k, v]) => `${k}: ${v}`)
+				.join("\n");
+			alert(
+				`已经是最新版本\n仓库版本：${m.version}\n本地版本：${localVersion}\n比对文件：${entries.length} 个（哈希全部一致）\n极速更新：${onlyCode ? "开" : "关"}\n${samples}`
+			);
+		}
 		return;
 	}
 	const okToUpdate = await askUpdate(
