@@ -7058,6 +7058,121 @@ const skills = {
         },
     },
 //#noname-kit-end skill:seer_zhuanyi
+//#noname-kit-begin skill:seer_huangjinluoxuan
+    seer_huangjinluoxuan: {
+        // 锁定技：摸牌阶段额外摸牌，随后弃牌；弃到装备/锦囊叠永久加成
+        trigger: {
+            player: "phaseDrawBegin2",
+        },
+        // 临时护甲的回收子技能常驻（避免 addTempSkill 默认在 phaseAfter 就被移除）
+        group: "seer_huangjinluoxuan_hujia",
+        forced: true,
+        popup: false,
+        mark: true,
+        marktext: "螺",
+        intro: {
+            markcount(storage, player) {
+                return player.getStorage("seer_huangjin_sha", 0);
+            },
+            content(storage, player) {
+                const draw = player.getStorage("seer_huangjin_draw", 0);
+                const discard = player.getStorage("seer_huangjin_discard", 0);
+                const sha = player.getStorage("seer_huangjin_sha", 0);
+                const hujia = player.getStorage("seer_huangjin_hujia", 0);
+                return `黄金螺旋：额外摸牌 ${1 + draw} 张、弃牌 ${1 + discard} 张、使用【杀】次数上限 +${sha}、临时护甲 ${hujia} 点`;
+            },
+        },
+        mod: {
+            cardUsable(card, player, num) {
+                if (card.name == "sha") {
+                    return num + player.getStorage("seer_huangjin_sha", 0);
+                }
+            },
+        },
+        async content(event, trigger, player) {
+            // 额外摸牌（锁定，不询问）
+            const add = 1 + player.getStorage("seer_huangjin_draw", 0);
+            trigger.num += add;
+            game.log(player, "黄金螺旋：额外摸", "#y" + add, "张牌");
+            player.addTempSkill("seer_huangjinluoxuan_discard");
+        },
+        subSkill: {
+            discard: {
+                // 摸牌结束后强制弃牌，弃到装备/锦囊触发加成
+                trigger: {
+                    player: "phaseDrawAfter",
+                },
+                forced: true,
+                popup: false,
+                silent: true,
+                charlotte: true,
+                async content(event, trigger, player) {
+                    player.removeSkill(event.name);
+                    const discardNum = 1 + player.getStorage("seer_huangjin_discard", 0);
+                    const count = Math.min(discardNum, player.countCards("he"));
+                    if (count <= 0) {
+                        return;
+                    }
+                    const result = await player
+                        .chooseToDiscard(count, "he", true, `黄金螺旋：弃置${count}张牌`)
+                        .set("ai", card => -get.value(card))
+                        .forResult();
+                    const cards = result?.cards || [];
+                    const list = cards.filter(card => ["basic", "trick", "equip"].includes(get.type(card)));
+                    // 基本牌：令一个［］数值+1；锦囊牌：出杀次数+1；装备牌：获得1点临时护甲
+                    for (const card of list) {
+                        const type = get.type(card);
+                        if (type == "basic") {
+                            const choice = await player
+                                .chooseControl("摸牌数+1", "弃牌数+1")
+                                .set("prompt", `黄金螺旋：${get.translation(card)}（基本牌）的加成`)
+                                .set("ai", () => 0)
+                                .forResult();
+                            if (choice.index === 0) {
+                                player.setStorage("seer_huangjin_draw", player.getStorage("seer_huangjin_draw", 0) + 1);
+                            } else {
+                                player.setStorage("seer_huangjin_discard", player.getStorage("seer_huangjin_discard", 0) + 1);
+                            }
+                        } else if (type == "trick") {
+                            // 锦囊牌：出杀次数 +1（永久）
+                            player.setStorage("seer_huangjin_sha", player.getStorage("seer_huangjin_sha", 0) + 1);
+                        } else if (type == "equip") {
+                            // 装备牌：获得1点临时护甲（下个回合开始时失去）
+                            await player.changeHujia(1);
+                            player.setStorage("seer_huangjin_hujia", player.getStorage("seer_huangjin_hujia", 0) + 1);
+                        }
+                    }
+                    player.markSkill("seer_huangjinluoxuan");
+                    await game.delay();
+                },
+            },
+            hujia: {
+                // 临时护甲：在自己的下个回合开始时失去
+                trigger: {
+                    player: "phaseBegin",
+                },
+                filter(event, player) {
+                    return player.getStorage("seer_huangjin_hujia", 0) > 0;
+                },
+                forced: true,
+                popup: false,
+                silent: true,
+                charlotte: true,
+                async content(event, trigger, player) {
+                    const num = player.getStorage("seer_huangjin_hujia", 0);
+                    if (num > 0) {
+                        const real = Math.min(num, player.hujia || 0);
+                        if (real > 0) {
+                            await player.changeHujia(-real);
+                        }
+                        game.log(player, "黄金螺旋：失去", "#y" + real, "点临时护甲");
+                        player.setStorage("seer_huangjin_hujia", 0);
+                    }
+                },
+            },
+        },
+    },
+//#noname-kit-end skill:seer_huangjinluoxuan
 };
 
 

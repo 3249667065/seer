@@ -316,5 +316,8 @@ const translates = {
     seer_zhuzhan_info: "拥有“伊芙”的角色：①出牌阶段结束时，获得一张点数随机的【桃】；②使用单目标基本牌或普通锦囊牌时，可交给西斯一张牌令此牌额外结算一次，然后“伊芙”数减一。",
     seer_zhuanyi: "转移",
     seer_zhuanyi_info: "每回合限一次，当你使用基本牌或普通锦囊牌时，你可以将此牌的使用者替换为一名其他角色。",
+    seer_keleifude: "克雷弗德",
+    seer_huangjinluoxuan: "黄金螺旋",
+    seer_huangjinluoxuan_info: "锁定技，摸牌阶段你额外摸［1］张牌并弃［1］张牌，每以此法弃置一张<b>基本/锦囊/装备</b>牌，分别令一个［］内数值+1/出杀次数+1/获得一点回合开始时失去的护甲。",
 };
 export default translates;

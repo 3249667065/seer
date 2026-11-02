@@ -34,6 +34,7 @@ const characterTitles = {
   seer_shengyuxieyan: '<span class="bluetext" style="color:#BF00FF">界限崩坏</span>',
   seer_mixiuli: '<span class="bluetext" style="color:#FFB3C6">不语子猫</span>',
   seer_zhengyizhimofashaonv: '<span class="bluetext" style="color:#1E90FF">为了守护与信念</span>',
-  seer_xingfuzhimofashaonv: '<span class="bluetext" style="color:#FFD700">愿世界充满幸福</span>'
+  seer_xingfuzhimofashaonv: '<span class="bluetext" style="color:#FFD700">愿世界充满幸福</span>',
+  seer_keleifude: '<span class="bluetext" style="color:#FFD700">领衔</span>'
 };
 export default characterTitles;
