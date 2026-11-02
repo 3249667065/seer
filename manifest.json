@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "update": "",
   "files": {
     "audio/binah1.mp3": "ac5831965b8b958264f978c124510f16ba0100ea",
@@ -17,19 +17,19 @@
     "card/skill.js": "300f7468cfad1bd8a96343bdbd8ad645ddfb0f0f",
     "card/translate.js": "6426fa4a24e0f71bb52a399489d393b3931f20eb",
     "character/card.js": "e053647d950c05eafddfc541e1cb1ae41c064ba0",
-    "character/character.js": "5365f6ab95314f0fb8c0b3e62d58eaf76a848654",
+    "character/character.js": "1b81924f86ade14baf1524e7d136847daae981b4",
     "character/characterCitation.js": "00d99f307847e3f7464d018b8a8a97fd9c5bf972",
     "character/characterFilter.js": "391e6689910862f60c90460e4c25d9fe05cd82a3",
     "character/characterReplace.js": "9f2ab3a3b598755da37bfcad2298adc2d84a26a3",
-    "character/characterTitle.js": "cd77c56b665fa405493d97afa8026aa6c676412d",
+    "character/characterTitle.js": "94956b36abd2684b1540f4bc8b72043dcfc996bb",
     "character/dynamicTranslate.js": "36d93af179ac4b76566790b53a1e2b79b3f0a4ca",
     "character/index.js": "c90b9e697e4d739fb19b2a8d3e2fb1205c4928bb",
     "character/intro.js": "4e446050135bb2abee32e23686b1e7a3ffef598f",
     "character/pinyin.js": "69fc7052c927810767753e00b55af92e6de9db42",
-    "character/skill.js": "0d8d1e49287d8d3117bdd1a8caca89f05923641e",
+    "character/skill.js": "1414c279a83a530eeb8619084c4c16305070f5cd",
     "character/skin.js": "5e4e6e97e283fda406fa418911778841ddc38c79",
-    "character/sort.js": "0310d6080ed26445e3955ed1f8413549359a8e56",
-    "character/translate.js": "dbe0ee272d172af44ef07c6e4787c7b4d953bc94",
+    "character/sort.js": "c4176d6b40f93de35136fbe87a632383591fc3e1",
+    "character/translate.js": "1042a536cd2a36f2d3514c7071b6df50173e5df9",
     "character/voices.js": "b25b8a3b9d91a0b8f4930ddf982e5bfb6fb667a6",
     "extension.js": "29933bfaa5f489b595ed67b994089b50c79ac10b",
     "image/background/binah_dgs.gif": "751ac5b0f87664cd4bf6944309b13204b9a2fe11",
@@ -59,6 +59,7 @@
     "image/character/seer_juewangqishi.jpg": "4614d28d54d2acaf3b6f69d1a0569a33ac133dc7",
     "image/character/seer_kali.jpg": "402952567d7a35883888b300abbc4f3b12c41923",
     "image/character/seer_kaliEGO.jpg": "d404904e29fc4e407536ba777cd9ad904ea2ddd4",
+    "image/character/seer_keleifude.jpg": "10aaaec93cfb178fc46142cdce61011dda2ccc2e",
     "image/character/seer_liumeng.jpg": "6a7777214eec98126a4982001b1c97528520305e",
     "image/character/seer_luomuhuaite.jpg": "c4ddee0898d9497e8a00e38866a0b888f400fbee",
     "image/character/seer_meheweite.jpg": "0a82b487b3fd9e187200744213ab0cb864968514",
@@ -92,8 +93,8 @@
     "main/extension.css": "ab88bd025934bce33277a686d47471680c7298a8",
     "main/package.js": "f47dbd3b2a7a5d1ab0677e763907e79de94836f9",
     "main/precontent.js": "f0b6fddfda55149e2e455919b8051a4efbdedae1",
-    "README.md": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
-    "update.js": "6d77cfa3b69bc0b7dcf615c24f59570ff3c71797",
-    "version.js": "099eb4b5660cb68577c5a28024a9c2ec3d41709a"
+    "README.md": "dab2dc1fd7977a70f7ac17482efc6a058784363f",
+    "update.js": "7795573c7eda33f877e78961f48953147d16b9c9",
+    "version.js": "f3a78e2d83207ed1db798259f64984df7412ccf3"
   }
 }
