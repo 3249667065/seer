@@ -287,7 +287,7 @@ const characters = {
 //#noname-kit-end character:seer_wujishengwu
 //#noname-kit-begin character:seer_liumeng
     seer_liumeng: {
-        sex: "male",
+        sex: "female",
         hp: 4,
         group: "qun",
         skills: ["seer_liumeng_mengqi", "seer_liumeng_mingyin"],
@@ -369,6 +369,15 @@ const characters = {
         trashBin: [],
     },
 //#noname-kit-end character:seer_keleifude
+//#noname-kit-begin character:seer_saigeleier
+    seer_saigeleier: {
+        sex: "female",
+        hp: 4,
+        group: "qun",
+        skills: ["seer_hnxt", "seer_sjzf", "seer_psgt"],
+        trashBin: [],
+    },
+//#noname-kit-end character:seer_saigeleier
     // 【已隐藏】幸福之魔法少女（seer_xingfuzhimofashaonv）：暂不放出，以后重做，代码保留。
     // 恢复：① 去掉下面块注释 ② 回 sort.js 的 SEER_qt 加回 'seer_xingfuzhimofashaonv'
     //       ③ 去掉 translate.js「幸福之魔法少女」段的注释（称号在 characterTitle.js 里没动，无需处理）

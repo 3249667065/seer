@@ -294,6 +294,7 @@ const skills = {
     //梅赫维特
 //#noname-kit-begin skill:seer_zhurichangshi
     seer_zhurichangshi: {
+        nobracket: true,
         mod: {
             ignoredHandcard(card, player) {
                 if (get.is.shownCard(card)) return true;
@@ -401,6 +402,7 @@ const skills = {
 //#noname-kit-end skill:seer_zhurichangshi
 //#noname-kit-begin skill:seer_zhuoritianxing
     seer_zhuoritianxing: {
+        nobracket: true,
         enable: "phaseUse",
         usable: 1,
         filter(event, player) {
@@ -482,6 +484,7 @@ const skills = {
 //#noname-kit-end skill:seer_zhuoritianxing
 //#noname-kit-begin skill:seer_changzhoudagao
     seer_changzhoudagao: {
+        nobracket: true,
         trigger: {
             player: "phaseBegin",
         },
@@ -523,6 +526,7 @@ const skills = {
     //霍德尔
 //#noname-kit-begin skill:seer_jinyejuexi
     seer_jinyejuexi: {
+        nobracket: true,
         trigger: {
             player: "showCharacterAfter",
         },
@@ -577,6 +581,7 @@ const skills = {
 //#noname-kit-end skill:seer_jinyejuexi
 //#noname-kit-begin skill:seer_youzhangchuiming
     seer_youzhangchuiming: {
+        nobracket: true,
         trigger: {
             global: ["loseAfter", "loseAsyncAfter"],
         },
@@ -5444,19 +5449,41 @@ const skills = {
         },
         forced: true,
         filter(event, player) {
-            if (!get.is.damageCard(event.card)) {
+            // 只响应“其他角色”使用的伤害牌（自己使用「深空」牌时不会触发）
+            if (event.player == player) {
                 return false;
             }
-            return player.getExpansions("seer_shenkong").length <= player.maxHp;
+            return get.is.damageCard(event.card);
         },
         async content(event, trigger, player) {
-            trigger.getParent().excluded.add(player);
-            game.log(trigger.card, "对", player, "无效");
-            const cards = trigger.cards.filterInD();
-            if (cards.length) {
-                const next = player.addToExpansion(cards, player, "gain2");
-                next.gaintag.add(event.name);
-                await next;
+            const expansions = player.getExpansions("seer_shenkong");
+            if (expansions.length <= player.maxHp) {
+                // “深空”牌数不多于体力上限：取消此牌对自己的结算，并将牌置于武将牌上
+                trigger.getParent().excluded.add(player);
+                game.log(trigger.card, "对", player, "无效");
+                const cards = trigger.cards.filterInD();
+                if (cards.length) {
+                    const next = player.addToExpansion(cards, player, "gain2");
+                    next.gaintag.add(event.name);
+                    await next;
+                }
+                return;
+            }
+            // “深空”牌数多于体力上限：对自己使用所有“深空”牌
+            const list = player.getExpansions("seer_shenkong").slice();
+            if (!list.length) {
+                return;
+            }
+            game.log(player, "「深空」爆发：将", "#y" + list.length, "张牌对自己使用");
+            for (const card of list) {
+                try {
+                    await player.useCard(get.autoViewAs({ name: get.name(card) }, [card]), [player], false);
+                } catch (e) {
+                    console.warn("赛尔计划·深空：使用失败", card, e);
+                    if (player.getExpansions("seer_shenkong").includes(card)) {
+                        await player.loseToDiscardpile([card]);
+                    }
+                }
             }
         },
         intro: {
@@ -5474,23 +5501,36 @@ const skills = {
 //#noname-kit-begin skill:seer_tansuo
     seer_tansuo: {
         trigger: {
-            player: "phaseBegin",
+            player: "phaseJieshu",
         },
         forced: true,
         async content(event, trigger, player) {
             const num = game.filterPlayer(target => target != player)
                 .reduce((sum, target) => sum + target.maxHp, 0);
-            if (player.maxHp <= num) {
-                await player.gainMaxHp();
-                if (player.getDamagedHp() > 0) {
-                    await player.draw(player.getDamagedHp());
-                }
-            } else {
-                await player.loseMaxHp();
-                const cards = player.getExpansions("seer_shenkong");
+            if (player.maxHp > num) {
+                return;
+            }
+            // 增加一点体力上限（不回复体力）
+            await player.gainMaxHp();
+            // 可将牌堆顶至多两张牌置于“深空”
+            const result = await player
+                .chooseControl(["0张", "1张", "2张"])
+                .set("prompt", "坍缩：可将牌堆顶至多两张牌置于「深空」")
+                .set("ai", () => 2)
+                .forResult();
+            const count = Number(result.index) || 0;
+            if (count > 0) {
+                const cards = get.cards(count);
                 if (cards.length) {
-                    await player.gain(cards, "gain2");
+                    const next = player.addToExpansion(cards, "gain2");
+                    next.gaintag.add("seer_shenkong");
+                    await next;
                 }
+            }
+            // 然后摸“深空”牌数张牌
+            const drawNum = player.getExpansions("seer_shenkong").length;
+            if (drawNum > 0) {
+                await player.draw(drawNum);
             }
         },
         ai: {
@@ -6019,6 +6059,7 @@ const skills = {
     //卡莉
 //#noname-kit-begin skill:seer_tsdcs
     "seer_tsdcs": {
+        nobracket: true,
         trigger: {
             player: "dyingAfter",
         },
@@ -6244,6 +6285,7 @@ const skills = {
 //#noname-kit-end skill:seer_shby
 //#noname-kit-begin skill:seer_dgs
     'seer_dgs': {
+        nobracket: true,
                             trigger: {
                                 player: 'phaseAfter'
                             },
@@ -6674,6 +6716,7 @@ const skills = {
     // 幸福之魔法少女
 //#noname-kit-begin skill:seer_weilexingfu
     seer_weilexingfu: {
+        nobracket: true,
         dutySkill: true,
         trigger: {
             global: ["gainAfter", "gameStart"],
@@ -6792,6 +6835,7 @@ const skills = {
 //#noname-kit-end skill:seer_shanjinzhilu
 //#noname-kit-begin skill:seer_baowangzhilu
     seer_baowangzhilu: {
+        nobracket: true,
         locked: true,
         forced: true,
         trigger: {
@@ -7060,12 +7104,11 @@ const skills = {
 //#noname-kit-end skill:seer_zhuanyi
 //#noname-kit-begin skill:seer_huangjinluoxuan
     seer_huangjinluoxuan: {
+        nobracket: true,
         // 锁定技：摸牌阶段额外摸牌，随后弃牌；弃到装备/锦囊叠永久加成
         trigger: {
             player: "phaseDrawBegin2",
         },
-        // 临时护甲的回收子技能常驻（避免 addTempSkill 默认在 phaseAfter 就被移除）
-        group: "seer_huangjinluoxuan_hujia",
         forced: true,
         popup: false,
         mark: true,
@@ -7078,8 +7121,7 @@ const skills = {
                 const draw = player.getStorage("seer_huangjin_draw", 0);
                 const discard = player.getStorage("seer_huangjin_discard", 0);
                 const sha = player.getStorage("seer_huangjin_sha", 0);
-                const hujia = player.getStorage("seer_huangjin_hujia", 0);
-                return `黄金螺旋：额外摸牌 ${1 + draw} 张、弃牌 ${1 + discard} 张、使用【杀】次数上限 +${sha}、临时护甲 ${hujia} 点`;
+                return `黄金螺旋：额外摸牌 ${1 + draw} 张、弃牌 ${1 + discard} 张、使用【杀】次数上限 +${sha}`;
             },
         },
         mod: {
@@ -7137,42 +7179,185 @@ const skills = {
                             // 锦囊牌：出杀次数 +1（永久）
                             player.setStorage("seer_huangjin_sha", player.getStorage("seer_huangjin_sha", 0) + 1);
                         } else if (type == "equip") {
-                            // 装备牌：获得1点临时护甲（下个回合开始时失去）
+                            // 装备牌：获得1点护甲
                             await player.changeHujia(1);
-                            player.setStorage("seer_huangjin_hujia", player.getStorage("seer_huangjin_hujia", 0) + 1);
                         }
                     }
                     player.markSkill("seer_huangjinluoxuan");
                     await game.delay();
                 },
             },
-            hujia: {
-                // 临时护甲：在自己的下个回合开始时失去
+        },
+    },
+//#noname-kit-end skill:seer_huangjinluoxuan
+//#noname-kit-begin skill:seer_hnxt
+    seer_hnxt: {
+        nobracket: true,
+        // 开局：记录初始手牌 + 额外 2 次手气卡；失救时重来
+        trigger: {
+            global: "gameStart",
+        },
+        group: ["seer_hnxt_shijiu"],
+        forced: true,
+        mark: true,
+        marktext: "皇",
+        intro: {
+            content(storage, player) {
+                const list = player.storage.seer_hnxt_initial || [];
+                if (!list.length) {
+                    return "尚无初始手牌记录";
+                }
+                return `初始手牌：${list.map(name => get.translation(name)).join("、")}`;
+            },
+        },
+        async content(event, trigger, player) {
+            if (event.triggername !== "gameStart") {
+                return;
+            }
+            // 记录初始手牌（牌名快照）
+            player.storage.seer_hnxt_initial = player.getCards("h").map(card => get.name(card));
+            player.markSkill(event.name);
+            // 额外 2 张手气卡：弃光手牌重铸
+            for (let i = 0; i < 2; i++) {
+                const left = 2 - i;
+                const result = await player
+                    .chooseBool(`皇女系统：是否使用手气卡重铸所有手牌？（剩余 ${left} 次）`)
+                    .set("ai", () => false)
+                    .forResult();
+                if (!result?.bool) {
+                    break;
+                }
+                const hs = player.getCards("h");
+                if (!hs.length) {
+                    break;
+                }
+                await player.discard(hs);
+                await player.draw(hs.length);
+            }
+        },
+        subSkill: {
+            shijiu: {
                 trigger: {
-                    player: "phaseBegin",
-                },
-                filter(event, player) {
-                    return player.getStorage("seer_huangjin_hujia", 0) > 0;
+                    player: "die",
                 },
                 forced: true,
-                popup: false,
-                silent: true,
-                charlotte: true,
                 async content(event, trigger, player) {
-                    const num = player.getStorage("seer_huangjin_hujia", 0);
+                    // 求桃失败即将死亡时：取消死亡
+                    trigger.cancel();
+                    game.log(player, "「皇女」系统：失救，体力上限-1并回满体力");
+                    await player.loseMaxHp();
+                    if (player.hp < player.maxHp) {
+                        await player.recover(player.maxHp - player.hp);
+                    }
+                    await player.discard(player.getCards("h"));
+                    const names = (player.storage.seer_hnxt_initial || []).slice();
+                    const num = Math.min(player.hp || 0, names.length);
                     if (num > 0) {
-                        const real = Math.min(num, player.hujia || 0);
-                        if (real > 0) {
-                            await player.changeHujia(-real);
+                        const result = await player
+                            .chooseButton(num, ["皇女系统：选择你要获得的牌", [names, "vcard"]], true)
+                            .forResult();
+                        if (result?.bool && result.links?.length) {
+                            const cards = result.links.map(link => game.createCard({ name: link[2] }));
+                            await player.gain(cards, "gain2");
                         }
-                        game.log(player, "黄金螺旋：失去", "#y" + real, "点临时护甲");
-                        player.setStorage("seer_huangjin_hujia", 0);
                     }
                 },
             },
         },
     },
-//#noname-kit-end skill:seer_huangjinluoxuan
+//#noname-kit-end skill:seer_hnxt
+//#noname-kit-begin skill:seer_sjzf
+    seer_sjzf: {
+        nobracket: true,
+        trigger: {
+            global: ["chooseToRespondBefore", "chooseToUseBefore"],
+        },
+        filter(event, player) {
+            if (event.responded) {
+                return false;
+            }
+            if (!event.filterCard({ name: "shan", isCard: true }, player, event)) {
+                return false;
+            }
+            return event.player != player && player.inRange(event.player);
+        },
+        check(event, player) {
+            return get.attitude(player, event.player) > 0;
+        },
+        async content(event, trigger, player) {
+            const next = player.chooseToRespond("是否替" + get.translation(trigger.player) + "打出一张闪？", { name: "shan" });
+            next.set("source", player);
+            next.autochoose = lib.filter.autoRespondShan;
+            const result = await next.forResult();
+            if (!result?.bool || !result.cards?.length) {
+                return;
+            }
+            const numShan = get.number(result.cards[0]) || 0;
+            const numCard = get.number(trigger.parent.card) || 0;
+            if (numShan > numCard) {
+                // 闪的点数大于被响应的牌：获得那张牌
+                const cards = trigger.parent.cards ? trigger.parent.cards.filterInD() : [];
+                if (cards.length) {
+                    await player.gain(cards, "gain2");
+                }
+            } else {
+                await player.damage(1, trigger.parent.player);
+            }
+            trigger.result = { bool: true, card: { name: "shan", isCard: true } };
+            trigger.responded = true;
+            trigger.animate = false;
+        },
+    },
+//#noname-kit-end skill:seer_sjzf
+//#noname-kit-begin skill:seer_psgt
+    seer_psgt: {
+        nobracket: true,
+        trigger: {
+            player: "damageEnd",
+        },
+        forced: true,
+        group: ["seer_psgt_add", "seer_psgt_reset"],
+        async content(event, trigger, player) {
+            const source = trigger.source;
+            if (source && source.isIn() && source.countCards("he")) {
+                await player.discardPlayerCard(source, "he", true);
+            }
+            player.storage.seer_psgt_pending = true;
+            game.log(player, "破损光体：本回合下次受到的伤害+1");
+        },
+        subSkill: {
+            add: {
+                trigger: {
+                    player: "damageBegin1",
+                },
+                forced: true,
+                filter(event, player) {
+                    return !!player.storage.seer_psgt_pending;
+                },
+                content(event, trigger, player) {
+                    trigger.num += 1;
+                    delete player.storage.seer_psgt_pending;
+                    game.log(player, "破损光体：本次伤害+1");
+                },
+            },
+            reset: {
+                trigger: {
+                    global: "phaseEnd",
+                },
+                forced: true,
+                silent: true,
+                popup: false,
+                charlotte: true,
+                filter(event, player) {
+                    return !!player.storage.seer_psgt_pending;
+                },
+                content(event, trigger, player) {
+                    delete player.storage.seer_psgt_pending;
+                },
+            },
+        },
+    },
+//#noname-kit-end skill:seer_psgt
 };
 
 
