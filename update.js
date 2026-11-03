@@ -85,7 +85,7 @@ async function fetchManifest(gh, errors) {
 	const ordered = [primary, ...mirrorList.filter((x) => x !== primary)];
 
 	const attempts = ordered.map(async (p) => {
-		const url = `${p}${REPO}/manifest.json`;
+		const url = `${p}${REPO}/manifest.json?ts=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 		try {
 			return { manifest: await fetchJson(url, 7000), source: p, url };
 		} catch (e) {
@@ -107,7 +107,7 @@ async function fetchManifest(gh, errors) {
 		/* 全部失败，走串行重试 */
 	}
 	for (const p of ordered) {
-		const url = `${p}${REPO}/manifest.json`;
+		const url = `${p}${REPO}/manifest.json?ts=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 		try {
 			return { manifest: await fetchJson(url, 15000), source: p, url };
 		} catch (e) {
@@ -260,6 +260,26 @@ async function performUpdate(isManual, localVersion) {
 			await game.promises.writeFile(data, dir, fullPath.split("/").pop());
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
+
+		// 下载完成后逐个校验哈希，防止“提示更新完成但文件没真正写进去”
+		const broken = [];
+		for (const f of updateFiles) {
+			const path = `extension/${EXTNAME}/${f}`;
+			try {
+				const buf = await game.promises.readFile(path);
+				const hashBuf = await crypto.subtle.digest("SHA-1", buf);
+				const localHash = Array.from(new Uint8Array(hashBuf), (x) => hex[x]).join("");
+				if (localHash !== m.files[f]) broken.push(`${f}（本地${localHash.slice(0, 8)}/清单${m.files[f].slice(0, 8)}）`);
+			} catch (e) {
+				broken.push(`${f}（读取失败）`);
+			}
+		}
+		if (broken.length) {
+			prog.remove();
+			alert(`更新已下载但校验不一致（${broken.length} 个文件），未写入清单：\n${broken.slice(0, 6).join("\n")}\n\n请把这段发给作者`);
+			throw new Error(`更新校验失败：${broken.length} 个文件不一致`);
+		}
+		console.log(`赛尔计划：${updateFiles.length} 个文件全部校验通过`);
 
 		await game.promises.writeFile(JSON.stringify(m, null, 2), `extension/${EXTNAME}`, "manifest.json");
 
