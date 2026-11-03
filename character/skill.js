@@ -7193,9 +7193,15 @@ const skills = {
 //#noname-kit-begin skill:seer_hnxt
     seer_hnxt: {
         nobracket: true,
-        // 开局：记录初始手牌 + 额外 2 次手气卡；失救时重来
+        // 开局（第一回合开始时，此时已发完牌）：记录初始手牌 + 额外 2 次手气卡
         trigger: {
-            global: "gameStart",
+            global: "phaseBegin",
+        },
+        init(player, skill) {
+            player.storage.seer_hnxt_done = false;
+        },
+        filter(event, player) {
+            return !player.storage.seer_hnxt_done;
         },
         group: ["seer_hnxt_shijiu"],
         forced: true,
@@ -7211,13 +7217,15 @@ const skills = {
             },
         },
         async content(event, trigger, player) {
-            if (event.triggername !== "gameStart") {
-                return;
-            }
-            // 记录初始手牌（牌名快照）
-            player.storage.seer_hnxt_initial = player.getCards("h").map(card => get.name(card));
-            player.markSkill(event.name);
-            // 额外 2 张手气卡：弃光手牌重铸
+            player.storage.seer_hnxt_done = true;
+            // 记录初始手牌（与引擎一致：_start_cards = 开局发到的牌）
+            const record = () => {
+                const cards = player._start_cards && player._start_cards.length ? player._start_cards : player.getCards("h");
+                player.storage.seer_hnxt_initial = cards.map(card => get.name(card));
+                player.markSkill("seer_hnxt");
+            };
+            record();
+            // 额外 2 次手气卡：与官方 replaceHandcards 完全一致的重铸写法
             for (let i = 0; i < 2; i++) {
                 const left = 2 - i;
                 const result = await player
@@ -7231,18 +7239,37 @@ const skills = {
                 if (!hs.length) {
                     break;
                 }
-                await player.discard(hs);
-                await player.draw(hs.length);
+                const cards = [];
+                for (const card of hs) {
+                    card.removeGaintag(true);
+                    card.discard(false);
+                }
+                cards.addArray(get.cards(hs.length));
+                player.directgain(cards);
+                // 重铸后的牌就是新的初始手牌
+                player._start_cards = cards;
+                record();
             }
         },
         subSkill: {
             shijiu: {
                 trigger: {
-                    player: "die",
+                    // 求桃失败、即将死亡时触发（dieBefore 在死亡结算之前）
+                    player: "dieBefore",
                 },
+                forceDie: true,
                 forced: true,
                 async content(event, trigger, player) {
-                    // 求桃失败即将死亡时：取消死亡
+                    // 已经被救回就不处理；体力上限已不足 1 点（再减就死）时也不触发，直接死亡
+                    if (player.hp > 0 || player.maxHp <= 1) {
+                        return;
+                    }
+                    // 防重入：避免同一溣死流程里反复触发
+                    if (player.storage.seer_hnxt_busy) {
+                        return;
+                    }
+                    player.storage.seer_hnxt_busy = true;
+                    // 取消死亡
                     trigger.cancel();
                     game.log(player, "「皇女」系统：失救，体力上限-1并回满体力");
                     await player.loseMaxHp();
@@ -7261,6 +7288,7 @@ const skills = {
                             await player.gain(cards, "gain2");
                         }
                     }
+                    delete player.storage.seer_hnxt_busy;
                 },
             },
         },
@@ -7276,6 +7304,10 @@ const skills = {
             if (event.responded) {
                 return false;
             }
+            // 手里没有【闪】就别询问
+            if (!player.countCards("h", card => get.name(card) == "shan")) {
+                return false;
+            }
             if (!event.filterCard({ name: "shan", isCard: true }, player, event)) {
                 return false;
             }
@@ -7284,6 +7316,8 @@ const skills = {
         check(event, player) {
             return get.attitude(player, event.player) > 0;
         },
+        // 不弹「是否发动」询问，直接进入选闪/取消
+        direct: true,
         async content(event, trigger, player) {
             const next = player.chooseToRespond("是否替" + get.translation(trigger.player) + "打出一张闪？", { name: "shan" });
             next.set("source", player);
