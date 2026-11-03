@@ -215,7 +215,7 @@ async function performUpdate(isManual, localVersion) {
 			if (source !== "api") {
 				const mirrorList = REPO.includes("github.com") ? MIRRORS : [""];
 				const order = [source, ...mirrorList.filter((x) => x !== source)];
-				for (const p of order) tryUrls.push({ url: `${p}${REPO}/${encodeURI(f)}` });
+				for (const p of order) tryUrls.push({ prefix: p });
 			}
 			if (gh) tryUrls.push({ api: true });
 			let lastErr = null;
@@ -225,7 +225,9 @@ async function performUpdate(isManual, localVersion) {
 						if (item.api) return await apiFile(gh, f);
 						const opt = {};
 						if (typeof AbortSignal !== "undefined" && AbortSignal.timeout) opt.signal = AbortSignal.timeout(20000);
-						const r = await fetch(item.url, opt);
+						// 每次下载都带时间戳，绕过 CDN/镜像对文件的缓存
+						const url = `${item.prefix}${REPO}/${encodeURI(f)}?ts=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+						const r = await fetch(url, opt);
 						if (!r.ok) throw new Error("HTTP " + r.status);
 						return new Uint8Array(await r.arrayBuffer());
 					} catch (e) {
