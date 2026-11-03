@@ -17,7 +17,7 @@
     "card/skill.js": "300f7468cfad1bd8a96343bdbd8ad645ddfb0f0f",
     "card/translate.js": "6426fa4a24e0f71bb52a399489d393b3931f20eb",
     "character/card.js": "e053647d950c05eafddfc541e1cb1ae41c064ba0",
-    "character/character.js": "1b81924f86ade14baf1524e7d136847daae981b4",
+    "character/character.js": "cab6533a7c232e36e73244d8ed1bde8095e178db",
     "character/characterCitation.js": "00d99f307847e3f7464d018b8a8a97fd9c5bf972",
     "character/characterFilter.js": "391e6689910862f60c90460e4c25d9fe05cd82a3",
     "character/characterReplace.js": "9f2ab3a3b598755da37bfcad2298adc2d84a26a3",
@@ -26,10 +26,10 @@
     "character/index.js": "c90b9e697e4d739fb19b2a8d3e2fb1205c4928bb",
     "character/intro.js": "4e446050135bb2abee32e23686b1e7a3ffef598f",
     "character/pinyin.js": "69fc7052c927810767753e00b55af92e6de9db42",
-    "character/skill.js": "1414c279a83a530eeb8619084c4c16305070f5cd",
+    "character/skill.js": "b2e9e39587db9ec910a6744dd1a367bd7c0c0ab6",
     "character/skin.js": "5e4e6e97e283fda406fa418911778841ddc38c79",
-    "character/sort.js": "c4176d6b40f93de35136fbe87a632383591fc3e1",
-    "character/translate.js": "1042a536cd2a36f2d3514c7071b6df50173e5df9",
+    "character/sort.js": "4c3e9a2d84655dfc694c8474570a9c65e2f93b7a",
+    "character/translate.js": "ed356921476c4f61f25703989ef86383bcfd45e6",
     "character/voices.js": "b25b8a3b9d91a0b8f4930ddf982e5bfb6fb667a6",
     "extension.js": "29933bfaa5f489b595ed67b994089b50c79ac10b",
     "image/background/binah_dgs.gif": "751ac5b0f87664cd4bf6944309b13204b9a2fe11",
@@ -94,7 +94,7 @@
     "main/package.js": "f47dbd3b2a7a5d1ab0677e763907e79de94836f9",
     "main/precontent.js": "f0b6fddfda55149e2e455919b8051a4efbdedae1",
     "README.md": "dab2dc1fd7977a70f7ac17482efc6a058784363f",
-    "update.js": "7795573c7eda33f877e78961f48953147d16b9c9",
+    "update.js": "49d5232a13d180a2ec1af264c6e1c23b6df6207b",
     "version.js": "f3a78e2d83207ed1db798259f64984df7412ccf3"
   }
 }
