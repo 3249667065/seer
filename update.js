@@ -6,7 +6,7 @@ import { EXTENSION_VERSION } from "./version.js";
 const EXTNAME = "赛尔计划";
 // 内置仓库根目录（GitHub raw；也支持 Gitee raw 等任意静态托管根目录）
 // 更新器构建标记（用于确认手机上运行的是哪一版）
-export const UPDATER_BUILD = "2026-11-06-cachefix";
+export const UPDATER_BUILD = "2026-11-06-blobfix";
 export const DEFAULT_REPO = "https://raw.githubusercontent.com/3249667065/seer/refs/heads/main";
 // 镜像源前缀，顺序与 main/config.js 的 update_source 选项一致
 const MIRRORS = ["", "https://gh-proxy.com/", "https://hk.gh-proxy.com/", "https://tvv.tw/"];
@@ -261,22 +261,39 @@ async function performUpdate(isManual, localVersion) {
 			const fullPath = `extension/${EXTNAME}/${f}`;
 			const dir = fullPath.split("/").slice(0, -1).join("/");
 			await ensureDir(dir);
-			await game.promises.writeFile(data, dir, fullPath.split("/").pop());
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			// 安卓（cordova）的 FileWriter.write 只认 Blob，直接传 Uint8Array 会写不进去
+			const isCordova = typeof window !== "undefined" && !!window.cordova;
+			const payload = isCordova && typeof Blob !== "undefined" ? new Blob([data]) : data;
+			await game.promises.writeFile(payload, dir, fullPath.split("/").pop());
+			await new Promise((resolve) => setTimeout(resolve, 150));
 		}
 
 		// 下载完成后逐个校验哈希，防止“提示更新完成但文件没真正写进去”
 		const broken = [];
+		const hashOf = async (buf) => {
+			const hashBuf = await crypto.subtle.digest("SHA-1", buf);
+			return Array.from(new Uint8Array(hashBuf), (x) => hex[x]).join("");
+		};
 		for (const f of updateFiles) {
 			const path = `extension/${EXTNAME}/${f}`;
-			try {
-				const buf = await game.promises.readFile(path);
-				const hashBuf = await crypto.subtle.digest("SHA-1", buf);
-				const localHash = Array.from(new Uint8Array(hashBuf), (x) => hex[x]).join("");
-				if (localHash !== m.files[f]) broken.push(`${f}（本地${localHash.slice(0, 8)}/清单${m.files[f].slice(0, 8)}）`);
-			} catch (e) {
-				broken.push(`${f}（读取失败）`);
+			let ok = false;
+			let last = "";
+			let lastSize = 0;
+			for (let attempt = 0; attempt < 6; attempt++) {
+				try {
+					const buf = await game.promises.readFile(path);
+					lastSize = buf.length ?? buf.byteLength ?? 0;
+					last = await hashOf(buf);
+					if (last === m.files[f]) {
+						ok = true;
+						break;
+					}
+				} catch (e) {
+					last = "读取失败";
+				}
+				await new Promise((resolve) => setTimeout(resolve, 200));
 			}
+			if (!ok) broken.push(`${f}（本地${String(last).slice(0, 8)}/${lastSize}B vs 清单${m.files[f].slice(0, 8)}）`);
 		}
 		if (broken.length) {
 			prog.remove();
