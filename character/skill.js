@@ -7240,12 +7240,20 @@ const skills = {
                     break;
                 }
                 const cards = [];
-                for (const card of hs) {
-                    card.removeGaintag(true);
-                    card.discard(false);
-                }
+                // 联机：必须在 broadcastAll 里执行弃牌，否则客户端手牌不会消失
+                game.broadcastAll(
+                    (player2, hs2) => {
+                        game.addVideo("lose", player2, [get.cardsInfo(hs2), [], [], []]);
+                        for (const card of hs2) {
+                            card.removeGaintag(true);
+                            card.discard(false);
+                        }
+                    },
+                    player,
+                    hs
+                );
                 cards.addArray(get.cards(hs.length));
-                player.directgain(cards);
+                game.broadcastAll((player2, cards2) => player2.directgain(cards2), player, cards);
                 // 重铸后的牌就是新的初始手牌
                 player._start_cards = cards;
                 record();
@@ -7297,6 +7305,8 @@ const skills = {
 //#noname-kit-begin skill:seer_sjzf
     seer_sjzf: {
         nobracket: true,
+        // 联机必须完整加载，否则客户端看不到这个响应技
+        forceLoad: true,
         trigger: {
             global: ["chooseToRespondBefore", "chooseToUseBefore"],
         },
@@ -7337,9 +7347,10 @@ const skills = {
             } else {
                 await player.damage(1, trigger.parent.player);
             }
-            trigger.result = { bool: true, card: { name: "shan", isCard: true } };
-            trigger.responded = true;
-            trigger.animate = false;
+            // 用官方【激将】的代替响应写法：直接改写响应事件的牌（联机才能正确同步）
+            trigger.card = result.card;
+            trigger.cards = result.cards;
+            trigger.throw = false;
         },
     },
 //#noname-kit-end skill:seer_sjzf
@@ -7392,6 +7403,203 @@ const skills = {
         },
     },
 //#noname-kit-end skill:seer_psgt
+//#noname-kit-begin skill:seer_longwu
+    seer_longwu: {
+        
+        // 联机时必须完整加载（否则客户端只会拿到影子技能，回合外响应时看不到这个技能）
+        forceLoad: true,
+        enable: ["chooseToUse", "chooseToRespond"],
+        usable: 1,
+        group: ["seer_longwu_cost"],
+        prompt: "龙舞：视为使用或打出一张基本牌",
+        filter(event, player) {
+            if (event.type == "wuxie") {
+                return false;
+            }
+            const ok = (name) => {
+                const card = { name, isCard: true };
+                if (name === "sha" || name === "jiu") {
+                    // 【杀】【酒】无视次数限制
+                    if (!lib.filter.cardEnabled(card, player)) {
+                        return false;
+                    }
+                    return game.hasPlayer((target) => target.isIn() && player.canUse(card, target));
+                }
+                return event.filterCard(card, player, event);
+            };
+            return ["sha", "shan", "tao", "jiu"].some(ok);
+        },
+        chooseButton: {
+            dialog(event, player) {
+                return ui.create.dialog("龙舞：选择视为使用或打出的基本牌", [["sha", "shan", "tao", "jiu"], "vcard"], "hidden");
+            },
+            filter(button, player) {
+                const evt = _status.event.getParent();
+                const name = button.link[2];
+                const card = { name, isCard: true };
+                if (name === "sha" || name === "jiu") {
+                    if (!lib.filter.cardEnabled(card, player)) {
+                        return false;
+                    }
+                    return game.hasPlayer((target) => target.isIn() && player.canUse(card, target));
+                }
+                return evt.filterCard(card, player, evt);
+            },
+            check(button) {
+                const player = _status.event.player;
+                const evt = _status.event.getParent();
+                if (evt.type != "phase") {
+                    return 1;
+                }
+                return player.getUseValue({ name: button.link[2] }, null, true) || 1;
+            },
+            backup(links, player) {
+                const name = links[0][2];
+                // 在“确认使用”阶段就抵消次数，否则后续的可使用校验会先拦住
+                if (name === "sha" || name === "jiu") {
+                    const stat = player.getStat("card");
+                    if (typeof stat[name] == "number" && stat[name] > 0) {
+                        stat[name]--;
+                    }
+                }
+                return {
+                    filterCard() {
+                        return false;
+                    },
+                    selectCard: -1,
+                    popname: true,
+                    viewAs: {
+                        name,
+                        isCard: true,
+                    },
+                    prompt: `龙舞：选择【${get.translation(name)}】的目标`,
+                };
+            },
+        },
+        ai: {
+            respondSha: true,
+            respondShan: true,
+            respondTao: true,
+            order: 2,
+            result: {
+                player(player) {
+                    if (_status.event.type == "dying") {
+                        return get.attitude(player, _status.event.dying);
+                    }
+                    return 1;
+                },
+            },
+        },
+        subSkill: {
+            // 代价：牌真正使用/打出时（目标已选完）选择翻面或横置
+            cost: {
+                charlotte: true,
+                silent: true,
+                popup: false,
+                trigger: {
+                    player: ["useCardBegin", "respondBegin"],
+                },
+                forced: true,
+                filter(event, player) {
+                    if (!event.skill || String(event.skill).indexOf("seer_longwu") !== 0) {
+                        return false;
+                    }
+                    if (event._seerLongwuPaid) {
+                        return false;
+                    }
+                    // 同一回合只付一次代价（防止同一张牌被重复触发）
+                    return player.storage.seer_longwu_cost_paid != game.phaseNumber;
+                },
+                async content(event, trigger, player) {
+                    trigger._seerLongwuPaid = true;
+                    player.storage.seer_longwu_cost_paid = game.phaseNumber;
+                    const choice = await player
+                        .chooseControl("翻面", "横置")
+                        .set("prompt", "龙舞：选择翻面或横置（重复选择会解除该状态）")
+                        .set("ai", () => (player.isTurnedOver() ? "横置" : "翻面"))
+                        .forResult();
+                    if (choice.control === "翻面") {
+                        await player.turnOver();
+                        game.log(player, "龙舞：翻面");
+                    } else {
+                        await player.link();
+                        game.log(player, "龙舞：", player.isLinked() ? "横置" : "重置");
+                    }
+                },
+            },
+        },
+    },
+//#noname-kit-end skill:seer_longwu
+//#noname-kit-begin skill:seer_longling
+    seer_longling: {
+        trigger: {
+            player: "useCard",
+        },
+        filter(event, player) {
+            if (!event.targets || event.targets.length !== 1) {
+                return false;
+            }
+            const target = event.targets[0];
+            if (!target || target === player || !target.isIn()) {
+                return false;
+            }
+            return player.isTurnedOver() !== target.isTurnedOver() || player.isLinked() !== target.isLinked();
+        },
+        check(event, player) {
+            const target = event.targets[0];
+            const damage = event.card && get.tag(event.card, "damage") > 0;
+            if (damage) {
+                // 对敌使用伤害牌：希望其拒绝 → 伤害+1
+                return get.attitude(player, target) < 0;
+            }
+            return get.attitude(player, target) > 0;
+        },
+        async content(event, trigger, player) {
+            const target = trigger.targets[0];
+            const card = trigger.card;
+            // 摸一张牌
+            await player.draw();
+            // 令目标选择是否调整状态
+            const result = await target
+                .chooseBool(`龙凌：是否将武将牌状态调整为与${get.translation(player)}相同？`)
+                .set("ai", () => get.attitude(target, player) > 0)
+                .forResult();
+            if (result?.bool) {
+                if (target.isTurnedOver() !== player.isTurnedOver()) {
+                    await target.turnOver();
+                }
+                if (target.isLinked() !== player.isLinked()) {
+                    await target.link(player.isLinked());
+                }
+                game.log(target, "将武将牌状态调整至与", player, "相同");
+            } else {
+                if (!card.storage) {
+                    card.storage = {};
+                }
+                card.storage.seer_longling = true;
+                game.log(player, "龙凌：", card, "造成的伤害+1");
+            }
+        },
+        group: ["seer_longling_add"],
+        subSkill: {
+            add: {
+                charlotte: true,
+                silent: true,
+                popup: false,
+                trigger: {
+                    global: "damageBegin1",
+                },
+                forced: true,
+                filter(event) {
+                    return !!(event.card && event.card.storage && event.card.storage.seer_longling);
+                },
+                content(event, trigger, player) {
+                    trigger.num += 1;
+                },
+            },
+        },
+    },
+//#noname-kit-end skill:seer_longling
 };
 
 
