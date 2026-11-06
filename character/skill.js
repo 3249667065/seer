@@ -7329,7 +7329,18 @@ const skills = {
         // 不弹「是否发动」询问，直接进入选闪/取消
         direct: true,
         async content(event, trigger, player) {
-            const next = player.chooseToRespond("是否替" + get.translation(trigger.player) + "打出一张闪？", { name: "shan" });
+            // 参数必须传带 filterCard 的对象（官方【激将】写法）；
+            // 写成 chooseToRespond(prompt, {name:"shan"}) 会被当成“牌对象”处理，导致手里有闪也选不了
+            const next = player.chooseToRespond({
+                prompt: "是否替" + get.translation(trigger.player) + "打出一张闪？",
+                filterCard(card, player2) {
+                    return get.name(card) == "shan" && lib.filter.cardRespondable(card, player2);
+                },
+                ai() {
+                    const evt = get.event();
+                    return get.attitude(evt.player, evt.source) - 2;
+                },
+            });
             next.set("source", player);
             next.autochoose = lib.filter.autoRespondShan;
             const result = await next.forResult();
