@@ -5,6 +5,8 @@ import { EXTENSION_VERSION } from "./version.js";
 // ============ 线上更新配置 ============
 const EXTNAME = "赛尔计划";
 // 内置仓库根目录（GitHub raw；也支持 Gitee raw 等任意静态托管根目录）
+// 更新器构建标记（用于确认手机上运行的是哪一版）
+export const UPDATER_BUILD = "2026-11-06-cachefix";
 export const DEFAULT_REPO = "https://raw.githubusercontent.com/3249667065/seer/refs/heads/main";
 // 镜像源前缀，顺序与 main/config.js 的 update_source 选项一致
 const MIRRORS = ["", "https://gh-proxy.com/", "https://hk.gh-proxy.com/", "https://tvv.tw/"];
@@ -223,7 +225,7 @@ async function performUpdate(isManual, localVersion) {
 				for (let attempt = 0; attempt <= 2; attempt++) {
 					try {
 						if (item.api) return await apiFile(gh, f);
-						const opt = {};
+						const opt = { cache: "no-store" };
 						if (typeof AbortSignal !== "undefined" && AbortSignal.timeout) opt.signal = AbortSignal.timeout(20000);
 						// 每次下载都带时间戳，绕过 CDN/镜像对文件的缓存
 						const url = `${item.prefix}${REPO}/${encodeURI(f)}?ts=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -278,7 +280,7 @@ async function performUpdate(isManual, localVersion) {
 		}
 		if (broken.length) {
 			prog.remove();
-			alert(`更新已下载但校验不一致（${broken.length} 个文件），未写入清单：\n${broken.slice(0, 6).join("\n")}\n\n请把这段发给作者`);
+			alert(`[${UPDATER_BUILD}] 更新已下载但校验不一致（${broken.length} 个文件），未写入清单：\n${broken.slice(0, 6).join("\n")}\n\n请把这段发给作者`);
 			throw new Error(`更新校验失败：${broken.length} 个文件不一致`);
 		}
 		console.log(`赛尔计划：${updateFiles.length} 个文件全部校验通过`);
