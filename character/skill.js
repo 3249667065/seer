@@ -7358,9 +7358,17 @@ const skills = {
             } else {
                 await player.damage(1, trigger.parent.player);
             }
-            // 用官方【激将】的代替响应写法：直接改写响应事件的牌（联机才能正确同步）
+            // 官方代替响应写法（护驾等技能同款）：标记已响应，否则原角色还会被要求继续出牌
+            const chosen = result.cards.slice();
+            trigger.result = {
+                bool: true,
+                card: { name: "shan", isCard: true, cards: chosen },
+                cards: chosen,
+            };
+            trigger.responded = true;
+            trigger.animate = false;
             trigger.card = result.card;
-            trigger.cards = result.cards;
+            trigger.cards = chosen;
             trigger.throw = false;
         },
     },
