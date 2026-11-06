@@ -7532,17 +7532,22 @@ const skills = {
                 async content(event, trigger, player) {
                     trigger._seerLongwuPaid = true;
                     player.storage.seer_longwu_cost_paid = game.phaseNumber;
+                    // 已横置时不再提供「横置」：不能靠重置横置来发动
+                    const choices = ["翻面"];
+                    if (!player.isLinked()) {
+                        choices.push("横置");
+                    }
                     const choice = await player
-                        .chooseControl("翻面", "横置")
-                        .set("prompt", "龙舞：选择翻面或横置（重复选择会解除该状态）")
-                        .set("ai", () => (player.isTurnedOver() ? "横置" : "翻面"))
+                        .chooseControl(choices)
+                        .set("prompt", "龙舞：选择翻面或横置（翻面可解除；已横置时不能再横置）")
+                        .set("ai", () => (player.isTurnedOver() ? "翻面" : choices.includes("横置") ? "横置" : "翻面"))
                         .forResult();
-                    if (choice.control === "翻面") {
+                    if (choice.control === "横置") {
+                        await player.link(true);
+                        game.log(player, "龙舞：横置");
+                    } else {
                         await player.turnOver();
                         game.log(player, "龙舞：翻面");
-                    } else {
-                        await player.link();
-                        game.log(player, "龙舞：", player.isLinked() ? "横置" : "重置");
                     }
                 },
             },
