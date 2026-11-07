@@ -7437,32 +7437,25 @@ const skills = {
             }
             const ok = (name) => {
                 const card = { name, isCard: true };
-                if (name === "sha" || name === "jiu") {
-                    // 【杀】【酒】无视次数限制
-                    if (!lib.filter.cardEnabled(card, player)) {
-                        return false;
-                    }
-                    return game.hasPlayer((target) => target.isIn() && player.canUse(card, target));
+                // 【杀】【酒】无视次数限制
+                if (!lib.filter.cardEnabled(card, player)) {
+                    return false;
                 }
-                return event.filterCard(card, player, event);
+                return game.hasPlayer((target) => target.isIn() && player.canUse(card, target));
             };
-            return ["sha", "shan", "tao", "jiu"].some(ok);
+            return ["sha", "jiu"].some(ok);
         },
         chooseButton: {
             dialog(event, player) {
-                return ui.create.dialog("龙舞：选择视为使用或打出的基本牌", [["sha", "shan", "tao", "jiu"], "vcard"], "hidden");
+                return ui.create.dialog("龙舞：选择视为使用或打出的基本牌", [["sha", "jiu"], "vcard"], "hidden");
             },
             filter(button, player) {
-                const evt = _status.event.getParent();
                 const name = button.link[2];
                 const card = { name, isCard: true };
-                if (name === "sha" || name === "jiu") {
-                    if (!lib.filter.cardEnabled(card, player)) {
-                        return false;
-                    }
-                    return game.hasPlayer((target) => target.isIn() && player.canUse(card, target));
+                if (!lib.filter.cardEnabled(card, player)) {
+                    return false;
                 }
-                return evt.filterCard(card, player, evt);
+                return game.hasPlayer((target) => target.isIn() && player.canUse(card, target));
             },
             check(button) {
                 const player = _status.event.player;
@@ -7497,16 +7490,9 @@ const skills = {
         },
         ai: {
             respondSha: true,
-            respondShan: true,
-            respondTao: true,
             order: 2,
             result: {
-                player(player) {
-                    if (_status.event.type == "dying") {
-                        return get.attitude(player, _status.event.dying);
-                    }
-                    return 1;
-                },
+                player: 1,
             },
         },
         subSkill: {
